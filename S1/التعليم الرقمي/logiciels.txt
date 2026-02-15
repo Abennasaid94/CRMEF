@@ -1,0 +1,9 @@
+office, latex, libreoffice, pdf24, 
+simphy,Proteus,DaVinci Resolve, Interactive Physics,SimLab, Tracker, PhET, PhysProf, Physics 101 SE, Blender,Unity 3D, autocad mechanical, autocad plant3D, COMSOL Multiphysics, Algodoo, LTspice,PSpice,Labview,Ansys Zemax OpticStudio,Ansys Speos, OpticSim, 
+MollyCule, PyMOL, ChemDraw, ChemProject, ChemDoodle, Q-Chem,Molecular Workbench, 
+matlab, GeoGebra, Python, 
+Xournal++, Stylus Labs Write,okular,Rnote, 
+camptasia, filmora, openshot, Bandicam, handBrake,
+zoom, teams, teamViewer, scrcpy, Vysor,
+ithenticate, Plagiarism Checker X, 
+virtualbox, VMware
