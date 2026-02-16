@@ -1,0 +1,1 @@
+pdf_page_size: 7.8x11 inch
