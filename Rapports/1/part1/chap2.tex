@@ -1,0 +1,520 @@
+\chapter{Méthodes d'acquisition des signaux EEG à l'aide des systèmes BCI}
+
+\label{part1_chap2}
+\hypertarget{part1_chap2}{}
+\minitoc
+\section*{Introduction}
+Dans le cerveau, il y a de nombreuses synapses électriques, le rôle des synapses est de gérer la diffusion électrique entre les diverses zones cérébrales, afin que les signaux électriques du système nerveux apportent des informations du cerveau à chaque organe séparément. Ainsi, la détection et l'analyse des signaux EEG permettent de déduire les informations propres qu'ils portent. Le présent chapitre traite d'un ensemble de méthodes permettant d'acquérir des signaux EEG avec qualité, ainsi des exemples d'architecture de l'amplification des signaux (de l'ordre de $ \mu V$ au $ V$). Il présente également les divers moyens d'enregistrement EEG, à partir de la détermination des emplacements idéaux des électrodes, afin que le placement aléatoire de ces électrodes cause des interférences entre les signaux et donc un niveau élevé de corrélation entre les fonctionnalités extraites. Les électrodes d'acquisition sont ensuite placées suivant le système international 10-20 sur la surface du cuir chevelu. D'autre part, les signaux EEG sont caractérisés par une grande quantité de bruit, mais le plus important est la confusion émanant du cuir chevelu et des cellules cérébrales internes. Pour éliminer cette confusion, il faut soustraire le bruit à l'aide d'une électrode de référence. Par exemple, on considère que l'électrode de référence est le plus proche à l'électrode active, ou en calculant la moyenne des signaux de toutes les électrodes actives et en la considérant comme une électrode de référence. Ces méthodes permettent ainsi d'éliminer la confusion du cuir chevelu dans l'EEG. Ainsi, toutes les amplifications des signaux de canaux actifs doivent être isolées entre elles afin de minimiser le brouillage mutuel entre elles.
+Par ailleurs, parmi les types de bruit affectant la qualité du signal, on retrouve le bruit électrique, de sorte que le bruit émane à partir des électrodes et des amplificateurs et des câbles environnant la zone. Ceci est dû à la fragilité des signaux EEG et à leurs basses amplitudes devant les signaux d'interférence. Pour supprimer ce type d'interférence, il est possible de suivre certaines techniques d'amplification efficaces qui permettent de distinguer les signaux EEG capturés par rapport aux interférences. Par exemple, il est possible d'ajouter un modulateur juste avant l'amplificateur pour distinguer les fréquences EEG, puis après cela, on peut supprimer facilement les fréquences de bruit en utilisant un filtre passe-bande ou coupe-bande.
+Ce chapitre contient aussi des exemples de données qui ont été enregistrées à l'aide de périphériques courants (Section \ref{section:exemp_data_offline}), afin que ces données soient utilisées pour mettre au point des systèmes avancés d'analyse et de classification des tâches EEG avec une précision raisonnable.
+\section{Généralité}
+L'EEG est une mesure des potentiels qui reflètent l'activité électrique du cerveau humain. Il s'agit d'un test qui fournit des preuves du fonctionnement du cerveau au fil du temps. En outre, l'EEG est largement utilisé par des médecins et des scientifiques pour étudier les fonctions cérébrales et le diagnostic des troubles. Alors, l'étude de l'activité électrique cérébrale à travers des enregistrements EEG est l'un des outils les plus importants pour le diagnostic des maladies neurologiques, tels que l'épilepsie, les tumeurs cérébrales, le traumatisme crânien, les troubles du sommeil, démence et surveillance de la profondeur de l'anesthésie pendant la chirurgie. Ainsi, EEG est également utile pour le traitement des anomalies, des troubles du comportement (par exemple l'autisme), troubles de l'attention, problèmes d'apprentissage et retard de langage \citep{Siuly_2016}. Étant donné, la première machine d'enregistrement EEG a été présentée au monde par Hans Berger en 1929. Berger, qui était neuropsychiatre à l'université de Jena en Allemagne, a utilisé le terme allemand « elektrenkephalogramm » pour décrire la représentation graphique des courants électriques générés dans le cerveau \citep{Berger1929}. Il a suggéré que les courants cérébraux varient selon le statut fonctionnel du cerveau, comme le sommeil, l'anesthésie et l'épilepsie. Ce fut une idée révolutionnaire qui aide à créer une nouvelle branche de la science médicale appelée neurophysiologie \citep{Siuly_2016}.\\
+\indent Pendant l'enregistrement EEG, un certain nombre de petits disques appelés électrodes sont placés dans différents endroits sur la surface du cuir chevelu avec des colles temporaires. Chaque électrode est connectée à un amplificateur (un amplificateur par paires des électrodes) et une machine d'enregistrement de données EEG. Enfin, les signaux électriques du cerveau sont convertis à des courbes illustrées sur l'écran d'un ordinateur pour les analysés. La figure \ref{fig:Illustration_de_l_enregistrement_EEG} présente un exemple de la façon dont les électrodes sont placées sur le cuir chevelu pendant l'enregistrement de l'EEG. Les signaux EEG sont affichés sur un écran d'ordinateur lorsque les électrodes détectent le flux électrique résultant de l'activité des cellules cérébrales. Ensuite, ces signaux sont amplifiés et apparaissent sous forme de graphique sur un écran d'ordinateur, ou comme l'enregistrement est imprimé sur papier. Étant donné que les enregistrements EEG peuvent avoir de 1 à 256 électrodes enregistrées en parallèle, ce qui est appelé enregistrements EEG multicanaux \citep{Siuly_2016}. En outre, chaque paire des électrodes constitue généralement un canal. Chaque canal produit un signal lors d'un enregistrement EEG.\\
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight,width=.7\textwidth]{part1/Images/klsjvklsdnvvnd1a.PNG}
+\caption[Illustration de l'enregistrement EEG]{Illustration de l'enregistrement EEG \citep{Siuly_2016}.}
+\label{fig:Illustration_de_l_enregistrement_EEG}
+\hypertarget{fig:Illustration_de_l_enregistrement_EEG}{}
+\end{figure}
+\indent Il existe deux types d'EEG, selon l'endroit où le signal est pris dans la tête: Le cuir chevelu ou l'intracrânien. Pour le cuir chevelu EEG, de petites électrodes sont placées sur le cuir chevelu avec un bon contact mécanique et électrique. L'électrode spéciale implantée dans le cerveau via une chirurgie entraîne un EEG intracrânien. D'autre part, l'EEG mesurée directement à partir de la surface corticale à l'aide des électrodes sous-durales est appelée ECoG. L'amplitude d'un signal EEG variait généralement d'environ $1$ à $100 \mu V$ chez un adulte normal, et il est d'environ $10-20$mV lorsque mesuré avec des électrodes sous-durales telles que des électrodes à aiguille. Comme l'architecture du cerveau est non uniforme et le cortex est organisé fonctionnellement, les signaux EEG peuvent donc varier en fonction de l'emplacement des électrodes d'enregistrement.\\
+\indent Le placement des électrodes est important, car différents lobes du cortex cérébral sont responsables du traitement de différents types d'activités. La méthode standard pour la localisation des électrodes du cuir chevelu est le système international $10-20$ (Jasper 1958). Les $10$ et $20$ représentent les distances 10\% ou 20\% du total avant-arrière ou distance droite-gauche du crâne. Les positions sont déterminées par les deux éléments suivants: Nasion, qui est le point entre le front et le nez, au niveau de l'{\oe}il, et inion qui est la proéminence osseuse à la base du crâne sur la ligne médiane à la l'arrière de la tête. La figure \ref{fig:Le_systeme_international_de_placement_d_electrodes_10_20} présente la position des électrodes sur le cuir chevelu selon du système international $10-20$. Chaque emplacement utilise une lettre pour identifier le lobe et un numéro pour identifier l'emplacement de l'hémisphère. Les lettres $F$, $T$, $C$, $P$ et $O$ indiquent le lobe frontal, temporel, central, pariétal et occipital, respectivement. L'axe $Z$ fait référence à une électrode placée sur la ligne médiane. Les nombres pairs font référence aux positions des électrodes sur l'hémisphère droit, tandis que les nombres impairs se réfèrent à ceux de l'hémisphère gauche. Puisqu'un signal de tension EEG représente une différence entre les tensions à deux électrodes, tel que l'emplacement des électrodes est appelé montage \citep{Siuly_2016}.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight,width=.96\textwidth]{part1/Images/klsjvklsdnvvnd1b.PNG}
+\caption[Le système international de placement des électrodes 10-20]{Le système international de placement des électrodes 10-20 \citep{Siuly_2016}.}
+\label{fig:Le_systeme_international_de_placement_d_electrodes_10_20}
+\hypertarget{fig:Le_systeme_international_de_placement_d_electrodes_10_20}{}
+\end{figure}
+L'EEG peut être surveillé avec les montages suivants.
+\subsection{Le montage bipolaire}
+Chaque paire des électrodes constitue généralement un canal comme indiqué la figure \ref{fig:Illustration_de_le_montage_bipolaire_a}. Ce canal (forme d'onde) représente la différence entre deux électrodes adjacentes \citep{Fisch_1999, Niedermeyer_2005} comme indiqué par figure \ref{fig:Illustration_de_le_montage_bipolaire_b}. L'ensemble du montage consiste en une série de ces canaux. Par exemple, nous présentons un schéma d'un montage bipolaire sur la figure \ref{fig:Illustration_de_le_montage_bipolaire_c}, où le canal $Fp1 - F3$ représente la différence potentielle entre l'électrode $Fp1$ et l'électrode $F3$, le canal $F3-C3$ du montage représente la différence potentielle entre $F3$ et $C3$, et ainsi de suite à travers l'ensemble du réseau des électrodes.
+\begin{figure}[!htbp]
+\centering
+\subfloat[Modèle d'un EEG-amplification]
+{\includegraphics[height=.15\textheight, width=.34\textwidth]{part1/Images/klsjvklsdnvvnd1c.PNG}\label{fig:Illustration_de_le_montage_bipolaire_a}}\hfill
+\subfloat[\centering Exemple de la différence entre deux électrodes adjacentes]
+{\includegraphics[height=.15\textheight, width=.3\textwidth]{part1/Images/klsjvklsdnvvnd1d.PNG}\label{fig:Illustration_de_le_montage_bipolaire_b}}\hfill
+\subfloat[\centering Illustration du montage bipolaire]
+{\includegraphics[height=.15\textheight, width=.3\textwidth]
+{part1/Images/klsjvklsdnvvnd1e.PNG}\label{fig:Illustration_de_le_montage_bipolaire_c}}
+\caption[Illustration du montage bipolaire pour l'enregistrement des signaux EEG]{Illustration du montage bipolaire pour l'enregistrement des signaux EEG \citep{Siuly_2016}.}
+\label{fig:Illustration_de_le_montage_bipolaire}
+\hypertarget{fig:Illustration_de_le_montage_bipolaire}{}
+\end{figure}
+\subsection{Le montage référentiel} La sortie de chaque canal représente la différence entre certaines électrodes et une électrode de référence désignée \citep{Fisch_1999, Niedermeyer_2005}. Dans la figure \ref{fig:Exemple_de_montage_referentiel}, l'électrode $A2$ est considérée comme l'électrode de référence. Il n'y a pas de position standard pour cette référence. C'est cependant à une autre position que les électrodes « d'enregistrement ». Les positions médianes sont souvent utilisées parce qu'ils n'amplifient pas le signal dans un hémisphère par rapport à l'autre. Une autre populaire référence est « oreilles », qui est une moyenne physique ou mathématique des électrodes attachées aux lobes d'oreille et aux mastoïdes.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.15\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1f.PNG}
+\caption[Exemple du montage référentiel]{Exemple du montage référentiel \citep{Niedermeyer_2005}.}
+\label{fig:Exemple_de_montage_referentiel}
+\hypertarget{fig:Exemple_de_montage_referentiel}{}
+\end{figure}
+\subsection{Le montage de référence moyenne} 
+Les sorties de tous les amplificateurs sont additionnées et moyennes, et ce signal moyenné est utilisé comme référence commune pour chaque canal \citep{Fisch_1999}. Une illustration du montage de référence moyenne est donnée par la figure \ref{fig:Illustration_du_montage_de_reference_moyen}.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.15\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1g.PNG}
+\caption[Illustration du montage de référence moyenne]{
+Illustration d'un montage de référence moyenne \citep{Fisch_1999}.}
+\label{fig:Illustration_du_montage_de_reference_moyen}
+\hypertarget{fig:Illustration_du_montage_de_reference_moyen}{}
+\end{figure}
+\subsection{Le montage laplacien} La sortie du canal représente la différence entre chaque électrode et une moyenne pondérée des électrodes environnantes \citep{Fisch_1999}. Avec les EEGs numériques, tous les signaux sont généralement numérisés et stockés dans un montage particulier (généralement référentiel). Étant donné que n'importe quel montage peut être construit mathématiquement à partir de tout autre, les signaux EEG peuvent être visualisés par une machine EEG dans n'importe quel montage d'affichage souhaité.
+\section{Acquisition des signaux EEG}
+Le cerveau humain se compose d'environ de 100 milliards de cellules nerveuses appelées neurones et les charges électriques du cerveau sont maintenues par ces neurones. Les neurones partagent mêmes caractéristiques et ont les mêmes parties que les autres cellules, mais leur électrochimie permet de transmettre des signaux électriques à de longues distances. Les neurones ont trois parties fondamentales: Le corps cellulaire (soma), l'axone et les dendrites \citep{Siuly_2016}, notamment, le montre la figure \ref{fig:Une_structure_simple_d_un_neurone}.\\
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=200pt,width=440pt]
+{part1/Images/klsjvklsdnvvnd1h.PNG}
+\caption[Structure simplifie d'un neurone]{Structure simplifie d'un neurone \citep{Siuly_2016}.}
+\label{fig:Une_structure_simple_d_un_neurone}
+\hypertarget{fig:Une_structure_simple_d_un_neurone}{}
+\end{figure}
+\indent Le noyau cellulaire est le c{\oe}ur de la cellule qui donne des instructions à la cellule. L'axone est une partie longue et mince du neurone qui relie le noyau de son propre neurone avec la dendrite d'un autre. La dendrite est une courte section du neurone avec de nombreux sites récepteurs pour les neurotransmetteurs qui peuvent être envoyés par un axone apparié. Les dendrites peuvent être situées à l'une ou aux deux extrémités de la cellule. Grâce aux liaisons axone-dendrite, les neurones peuvent communiquer entre eux. Cette communication est rendue possible grâce au potentiel d'action.
+\subsection{Positionnement des électrodes}
+Les potentiels électriques enregistrables sur la surface du cuir chevelu sont générés par des faibles de \ac{PSP} inhibitrices et excitatrices additionnées en fréquence de cellules des neurones pyramidaux qui créent des dipôles électriques entre le soma et les dendrites apicaux (voir figure \ref{fig:Illustration_d_un_electrode_EEG_mesure_le_signal_a_travers_les_epaiss_xi_couches_de_tissus}). Ces PSP se résument dans le cortex et s'étendent jusqu'à la surface du cuir chevelu où elles sont enregistrées en tant qu'EEG. Les \ac{PA} des cellules nerveuses ont une distribution de champ potentiel beaucoup plus petite et sont beaucoup plus courts que les PSP. Les PA ne contribuent donc pas de manière significative à des enregistrements du cuir chevelu ou d'EEG intracrâniens cliniques. Seules de grandes populations de neurones actifs peuvent générer une activité électrique enregistrable sur le cuir chevelu \citep{Siuly_2016}. La tension, lorsqu'elle est générée par une cellule unique, qui est généralement trop petite pour être mesurée avec précision et avec des technologies actuelles.\\
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.4\textheight, width=.96\textwidth]
+{part1/Images/klsjvklsdnvvnd1i.PNG}
+\caption[Illustration d'une électrode EEG mesure le signal à travers les épaisses couches de tissu]{Illustration de la génération de très petits champs électriques par des courants synaptiques en pyramide cellules. L'électrode EEG mesure le signal à travers les épaisses couches de tissu. Seulement si des milliers des cellules simultanément leurs petites tensions peuvent les signaux devenir assez grands pour être vus à la surface du cuir chevelu \citep{Siuly_2016}.}
+\label{fig:Illustration_d_un_electrode_EEG_mesure_le_signal_a_travers_les_epaiss_xi_couches_de_tissus}
+\hypertarget{fig:Illustration_d_un_electrode_EEG_mesure_le_signal_a_travers_les_epaiss_xi_couches_de_tissus}{}
+\end{figure}
+\indent Anatomiquement, le cerveau peut être divisé en trois parties principales: Le cerveau, le cervelet et le tronc cérébral comme illustré à la figure \ref{fig:Zones_anatomiques_du_cerveau}. Le cervelet est la partie la plus grande et la plus importante du cerveau humain, il est généralement associé aux fonctions cérébrales liées aux pensées, aux mouvements, aux émotions et aux fonctions motrices. La couche la plus externe du cerveau est constituée de tissus neuronaux appelés cortex cérébral. Le cerveau se compose de deux hémisphères: Les hémisphères droit et gauche. Chaque hémisphère est divisé en quatre lobes: Frontal, pariétal, occipital et temporal \citep{Purves_2004}. Ces lobes sont responsables d'une variété de fonctions corporelles.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight, width=.96\textwidth]
+{part1/Images/klsjvklsdnvvnd1j.PNG}
+\caption[Zones anatomiques du cerveau]{Zones anatomiques du cerveau \citep{Purves_2004}.}
+\label{fig:Zones_anatomiques_du_cerveau}
+\hypertarget{fig:Zones_anatomiques_du_cerveau}{}
+\end{figure}
+Le lobe frontal est impliqué dans la personnalité, les émotions, la résolution de problèmes, le développement moteur, le raisonnement, la planification, certaines parties de la parole et du mouvement. Le lobe pariétal est responsable de la sensation (par exemple, la douleur, le toucher), la compréhension sensorielle, la reconnaissance, la perception des stimuli, l'orientation et le mouvement. Le lobe occipital est responsable du traitement visuel. Le lobe temporal participe à la reconnaissance des stimuli auditifs, de la parole, de la perception et de la mémoire. Le cervelet est situé dans le bas du dos de la tête et est également divisé en deux hémisphères, c'est la deuxième la plus grande structure du cerveau et contient plus de la moitié des neurones du cerveau. Le cervelet est l'une des zones sensorielles du cerveau qui est responsable du contrôle moteur, de la perception sensorielle et de la coordination. Le cervelet est également associé aux mouvements musculaires volontaires, à la motricité fine, à la régulation de la posture et de l'équilibre.\\
+\indent Le tronc cérébral est situé au bas du cerveau et relie le cerveau à la moelle épinière. Le tronc cérébral est comme le disque dur d'un ordinateur et c'est le principal panneau de contrôle du corps. Il contrôle les fonctions vitales du corps, notamment la respiration, la conscience, les mouvements des yeux et de la bouche et la transmission des messages sensoriels (douleur, chaleur, bruit, \ldots, etc.), les battements cardiaques, la pression artérielle et la faim. Dans la mesure EEG, le cortex cérébral est la structure la plus pertinente, car il est responsable des tâches cognitives d'ordre supérieur, telles que la résolution de problèmes, la compréhension du langage, le mouvement et le traitement d'informations visuelles complexes. En raison de sa position en surface, l'activité électrique du cortex cérébral a la plus grande influence sur les enregistrements EEG.
+\subsection{Les caractéristiques et nature des signaux EEG}
+\label{subsection:Les_caractéristiques_et_nature_des_signaux_EEG}
+La fréquence est l'un des critères les plus importants pour évaluer les anomalies dans les EEG cliniques et pour comprendre les comportements fonctionnels dans la recherche cognitive. La fréquence fait référence à l'activité répétitive rythmique (en Hz). Le nombre de cycles en seconde est compté comme fréquence. Avec des milliards de communautés de neurones oscillants comme source, les potentiels EEG humains se manifestent sous forme d'oscillations imprévisibles apériodiques avec des salves intermittentes d'oscillations. Chez les adultes en bonne santé, les amplitudes et fréquences de ces signaux changent d'un état à un autre, comme l'éveil et le sommeil. Il existe cinq grandes ondes cérébrales qui se distinguent par leurs différentes gammes de fréquences. Ces bandes de fréquences des basses aux hautes fréquences, respectivement, sont généralement classées dans des bandes spécifiques telles que de 0.5Hz à 4Hz (delta, $\delta$), de 4Hz à 8Hz (thêta, $\theta$), de 8Hz à 13Hz (alpha, $\alpha$), de 13Hz à 30Hz (bêta, $\beta$) et plus que 30Hz (gamma, $\gamma$) \citep{Fisch_1999, Niedermeyer_2005}. Des fréquences plus élevées sont souvent plus fréquentes dans les états cérébraux anormaux tels que l'épilepsie. La figure \ref{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux} illustre des exemples de ces rythmes EEG.\\
+\begin{figure}[!htbp]
+\centering
+\subfloat[Delta rythme]
+{\includegraphics[height=.1\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1k.PNG}\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux_a}}\hfill
+\subfloat[Thêta rythme]
+{\includegraphics[height=.1\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1l.PNG}\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux_b}}\hfill
+\subfloat[Alpha rythme]
+{\includegraphics[height=.1\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1m.PNG}\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux_c}}\\
+\subfloat[Bêta rythme]
+{\includegraphics[height=.1\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1n.PNG}\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux_d}}\hfill
+\subfloat[Gamma rythme]
+{\includegraphics[height=.1\textheight, width=.33\textwidth]
+{part1/Images/klsjvklsdnvvnd1o.PNG}\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux_e}}
+\caption[Exemple de différents types de rythmes EEG normaux]{Exemple de différents types de rythmes EEG normaux \citep{Siuly_2016}.}
+\label{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux}
+\hypertarget{fig:Exemple_de_differents_types_de_rythmes_EEG_normaux}{}
+\end{figure}
+\indent L'onde delta se situe entre 0.5Hz et 4Hz et la forme est observée comme étant la plus élevée en amplitude et la plus lente en vagues. Il est principalement associé au sommeil profond, à de graves troubles cérébraux et à l'état de veille. L'onde thêta se situe entre 4Hz et 8Hz avec une amplitude généralement supérieure à 20$\mu V$. Le thêta provient du stress émotionnel, en particulier de la frustration ou de la déception et du matériel inconscient, de l'inspiration créative et de la méditation profonde. L'onde alpha contient la plage de fréquences de 8Hz à 13Hz, avec une amplitude de 30$\mu V$ à 50$\mu V$, qui apparaît principalement dans les régions postérieures de la tête (lobe occipital) lorsque le sujet a les yeux fermés ou est dans un état de relaxation. Elle est généralement associée à l'activité mentale intense, le stress et la tension. L'activité des ondes alpha est enregistrée à partir des zones sensorimotrices et aussi appelée l'activité mu. L'onde bêta est dans la gamme de fréquences de 13Hz à 30Hz. On le voit dans une faible amplitude et des fréquences variables symétriquement des deux côtés dans la zone frontale. Lorsque le cerveau est excité et activement engagé dans des activités mentales, il génère des ondes bêta. Ces vagues sont les caractéristiques d'un esprit fortement engagé. Bêta est l'onde cérébrale généralement associée aux choses actives, aux attentions actives et à la concentration sur le monde extérieur ou à la résolution de problèmes concrets. Les ondes gamma ont la fréquence de 30Hz et plus, ce rythme est parfois défini comme ayant une fréquence maximale autour de 80Hz ou 100Hz. Il est associé à diverses fonctions cognitives et motrices \citep{Siuly_2016}.
+%\subsection*{Types des électrodes}
+\subsection{Estimation du positionnement des électrodes}
+Les travaux des scientifiques sur la détection des signaux EEG traduisent une architecture bien précise du positionnement des électrodes au niveau des lobes cérébraux (partial, frontal, occipitale et temporelle) comme montre la figure \ref{fig:P_s_o_n_m_e_l_E}.\\
+\begin{figure}[!htbp]
+\centering
+\subfloat[Image réelle du cerveau]
+{\includegraphics[height=.3\textheight, width=.48\textwidth]{part1/Images/daz.PNG}\label{fig:P_s_o_n_m_e_l_E_a}}\hfill
+\subfloat[Système international 10-20]
+{\includegraphics[height=.3\textheight, width=.48\textwidth]{part1/Images/dzad.PNG}\label{fig:P_s_o_n_m_e_l_E_b}}
+\caption[Positionnement des électrodes EEG au niveau des parties internes du cerveau]{Positionnement des électrodes EEG au niveau des parties internes du cerveau \citep{Alexandre_2012}.}
+\label{fig:P_s_o_n_m_e_l_E}
+\hypertarget{fig:P_s_o_n_m_e_l_E}{}
+\end{figure}
+\indent La sélection des électrodes basée sur le calcul du coefficient de détermination entre les variances des différentes électrodes et la classe des tests. Cette sélection du modèle repose sur l'emploi du coefficient de détermination $R^2$ qui reflète la force du lien entre les log-variances des électrodes et la classe du test. On utilise le vecteur constitué ces log-variances des électrodes pour calculer le coefficient de détermination. Ainsi, notons $\chi_{i,c}$ est le vecteur $\chi_c$ de la composante $i$, égale au log-variance calculée sur le signal de l'électrode $c \in \{1 : C\}$ pendant le test $i \in \{1 : I\}$. On a:
+\begin{flalign}
+\begin{split}
+\chi_c = [\chi_{1,c},\ldots,\chi_{I,c}]^T \in \mathbb{R}^{I\times 1}
+\end{split}.
+\label{eq:ksi_c_1_c}
+\hypertarget{eq:ksi_c_1_c}{}
+\end{flalign}
+La matrice composée de la concaténation de tous les vecteurs de variances et du vecteur $y$ contenant la classe des différents tests \citep{Alexandre_2012}. On calcule $\alpha_a \in \mathbb{R}^{(C+1)\times(C+1)}$ de la matrice de corrélation de $A$ : $[\alpha_a]_{i,j} =\operatorname{corr} (a_i, a_j)$. Chaque élément de $\alpha_a$ représente donc la valeur de la corrélation entre deux vecteurs colonne de $A$ \citep{Alexandre_2012}. La matrice $\alpha_a$ a une structure particulière que l'on résumera ainsi:
+\begin{flalign}
+\begin{split}
+ M= \left[
+ \begin{array}{lr}
+ \alpha_v & a_{vy}\\
+ a_{yv} & 1\\
+ \end{array}\right]
+\end{split},
+\label{eq:alpha_chi_r_yv}
+\hypertarget{eq:alpha_chi_r_yv}{}
+\end{flalign}
+avec $\alpha_v \in \mathbb{R}^{C\times C}$ la matrice de corrélation inter-électrodes et $a_{vy} =a_{yv}^T \in \mathbb{R}^C$ est le vecteur des corrélations entre les électrodes et la classe des tests. On obtient alors le coefficient de détermination $M^2$: 
+\begin{flalign}
+\begin{split}
+M^2=a_{vy}^T \alpha_v^{-1} a_{vy}
+\end{split}.
+\label{eq:R_alpha_vy_alpha_v}
+\hypertarget{eq:R_alpha_vy_alpha_v}{}
+\end{flalign}
+Le coefficient de détermination ajusté permet de comparer des modèles dont le nombre de variables n'est pas constant: 
+\begin{flalign}
+\begin{split}
+\alpha_a^2=1-\frac{I-1}{I-(c+1)}\left(1-M^2\right)
+\end{split},
+\label{eq:alpha_a_2_I_1}
+\hypertarget{eq:alpha_a_2_I_1}{}
+\end{flalign}
+avec $I$ est le nombre de tests et $c \le C$ est le nombre des électrodes considérées.\\
+\indent On recherche pour un nombre donné $c$ des électrodes, le meilleur sous-ensemble $\xi_l^c$ de $c$ électrodes parmi les $C$ électrodes qui vérifie l'équation suivant: 
+%\displaystyle
+%$\stackrel{text}{relation}:$
+\begin{flalign}
+\begin{split}
+\xi_l^c=\underset{\xi^c}{\mathrm{argmax}} \left(\alpha_a^2 (\xi^c)\right)
+\end{split}.
+\label{eq:xi_c_xi_c}
+\hypertarget{eq:xi_c_xi_c}{}
+\end{flalign}
+On détermine le nombre minimal des électrodes $C_l$ qui minimise le critère d'information d'Akaike corrigé sur l'ensemble des sous-ensembles $\xi_l^c$, tel que:
+\begin{flalign}
+\begin{split}
+C_l=\underset{\xi^c}{\mathrm{argmin}} \left(\operatorname{A}_{\operatorname{cor}} (c)\right)
+\end{split},
+\label{eq:C_xi_c_AIC}
+\hypertarget{eq:C_xi_c_AIC}{}
+\end{flalign} 
+avec:
+\begin{flalign}
+\begin{split}
+\operatorname{A}_{\operatorname{cor}}(c)=I\ln\left( \varrho^2(c)\right)+ 2c + \frac{2c (c + 1) }{I-(c+1) }
+\end{split},
+\label{eq:AIC_cor_c}
+\hypertarget{eq:AIC_cor_c}{}
+\end{flalign} 
+et,
+\begin{flalign}
+\begin{split}
+\varrho^2 (c)=\frac{1}{I} \sum_{i=1}^I r_i^2 (c)
+\end{split},
+\label{eq:hat_c_I}
+\hypertarget{eq:hat_c_I}{}
+\end{flalign} 
+où $\varrho^2 (c)$ est l'estimation de la variance des termes résiduels $r_i^2 (c)$ du modèle bâti sur le sous-ensemble des électrodes $\xi_l^c$ \citep{Alexandre_2012}. La variance des termes résiduels est liée à $\alpha_a^2 (\xi_l^c)$:
+\begin{flalign}
+\begin{split}
+\varrho^2 (c)=\left(1-\alpha_a^2 \left(\xi_l^c \right)\right)\sigma_y^2
+\end{split},
+\label{eq:hat_2_c_R}
+\hypertarget{eq:hat_2_c_R}{}
+\end{flalign} 
+avec $\sigma_y^2$ la variance des $y_i$ \citep{Alexandre_2012}.
+\section{Les architectures bioamplification}
+En règle générale, un instrument d'acquisition EEG monocanal contient trois électrodes, trois fils conducteurs et un amplificateur d'instrumentation différentielle (Figure \ref{fig:Acquisition_un_signal_EEG_travers_trois_lectrodes_passives_amplificateur}). L'instrument mesure la différence de tension entre une électrode active et l'électrode de référence. Les deux électrodes convertissent le courant ionique en courant électrique. Tel que, le potentiel EEG représente les fluctuations de tension résultant du courant ionique dans les neurones cérébraux \citep{Xu_2018}. Via deux fils conducteurs, un \ac{IA} mesure le potentiel EEG différentiel entre ces deux électrodes. Une troisième électrode, à savoir l'électrode de polarisation ou l'électrode de masse, aide à maintenir le niveau de \ac{VCC} du corps en ligne avec les circuits de lecture pour amplifier correctement le signal EEG. Sans d'électrode de polarisation connectée au corps, les potentiels d'électrode peuvent dériver et éventuellement saturer l'entrée de l'IA \citep{Xu_2018}.\\
+\indent Dans le domaine électrique, l'interface électrode-tissu peut être modélisée comme une impédance complexe en série avec une source de tension continue, qui représente la tension de polarisation entre la peau et l'électrode (Figure \ref{fig:Modele_lectrique_quivalent_de_interfac_lectrode_tissu}).
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.15\textheight, width=.5\textwidth]{part1/Images/s.PNG}
+\caption[Acquisition d'un signal EEG à travers trois électrodes (passives) et un amplificateur d'instrumentation différentielle]{Acquisition d'un signal EEG à travers trois électrodes et un amplificateur d'instrumentation différentielle \citep{Xu_2018}.}
+\label{fig:Acquisition_un_signal_EEG_travers_trois_lectrodes_passives_amplificateur}
+\hypertarget{fig:Acquisition_un_signal_EEG_travers_trois_lectrodes_passives_amplificateur}{}
+\end{figure} 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.2\textheight, width=.7\textwidth]{part1/Images/t.PNG}
+\caption[Modèle électrique équivalent de l'interface électrode-tissu]{\centering Modèle électrique équivalent de l'interface électrode-tissu \citep{Chi_2010, Xu_2018}.}
+\label{fig:Modele_lectrique_quivalent_de_interfac_lectrode_tissu}
+\hypertarget{fig:Modele_lectrique_quivalent_de_interfac_lectrode_tissu}{}
+\end{figure} 
+Le plus grand défi auquel sont confrontés les concepteurs de systèmes EEG portables est l'amélioration du confort de l'utilisateur, la capacité de surveillance à long terme avec une qualité de signal de qualité médicale. Malheureusement, les systèmes EEG de l'art antérieur répondent rarement à toutes ces exigences. Un inconvénient majeur des systèmes EEG de l'art antérieur est leur dépendance vis-à-vis du gel ou des électrodes humides. Le gel conducteur réduit l'impédance peau-électrode et les artefacts associés induits par le mouvement du câble. Par conséquent, les électrodes humides sont largement utilisées dans la pratique clinique. Cependant, les électrodes humides nécessitent une préparation cutanée et un personnel professionnel pour les placer correctement. De plus, le gel peut se dessécher et nécessite donc un remplacement fréquent des électrodes pour maintenir l'intégrité du signal. Ces inconvénients limitent l'utilisation des électrodes humides dans les applications EEG portables \citep{Xu_2018}.\\
+\begin{figure}[!htbp]
+\centering
+\subfloat[Sans AE]
+{\includegraphics[height=.10\textheight, width=.5\textwidth]{part1/Images/u_a.PNG}
+\label{fig:Illustration_de_xi_circuits_de_lecture_EEG_a}}\\
+\subfloat[Avec AE]
+{\includegraphics[height=.10\textheight, width=.5\textwidth]{part1/Images/u_b.PNG}
+\label{fig:Illustration_de_xi_circuits_de_lecture_EEG_b}}\\
+\caption[Illustration des circuits de lecture EEG]{Illustration des circuits de lecture EEG avec une solution conventionnelle basée sur un IA et avec ou sans électrodes actives \citep{Xu_2018}.}
+\label{fig:Illustration_de_xi_circuits_de_lecture_EEG}
+\hypertarget{fig:Illustration_de_xi_circuits_de_lecture_EEG}{}
+\end{figure} 
+\indent Les électrodes sèches facilitent l'enregistrement EEG à long terme ainsi qu'un plus grand confort d'utilisation. Cependant, cela se fait au détriment de la qualité du signal réduite en raison de la plus grande impédance peau-électrode (Figure \ref{fig:Modele_lectrique_quivalent_de_interfac_lectrode_tissu}). Cette impédance complexe peut atteindre quelques $M\Omega$ à la fréquence des courants du pays (50Hz ou 60Hz) \citep{Lee_2008, Searle_2000}, et elle augmente considérablement le captage du bruit et des interférences de l'environnement. Les électrodes sèches doivent donc être tamponnées ou blindées afin d'approcher des performances d'électrodes humides \citep{Metting_van_Rijn_1991}. La connexion directe des électrodes sèches à un amplificateur EEG via des câbles légers non blindés n'assurera pas une bonne qualité du signal. Par conséquent, les systèmes d'enregistrements EEG conventionnels (Figure \ref{fig:Illustration_de_xi_circuits_de_lecture_EEG_a}) basés sur des électrodes passives connectées à un amplificateur biopotentiel différentiel via de longs câbles ne conviennent pas pour une utilisation avec des électrodes sèches et des appareils portables \citep{Xu_2018}.
+\subsection{La modulation de Chopper}
+\begin{figure}[!htbp]
+\centering
+\subfloat[Modèle réel d'amplification des signaux]
+{\includegraphics[height=.12\textheight, width=.5\textwidth]{part1/Images/b.PNG}\label{fig:Technique_de_modulation_du_hacheur_pour_reduire_le_decalage_de_IA_et_le_bruit_a}}\\
+\subfloat[Modulation du hacheur]
+{\includegraphics[height=.16\textheight, width=.7\textwidth]{part1/Images/c.PNG}\label{fig:Technique_de_modulation_du_hacheur_pour_reduire_le_decalage_de_IA_et_le_bruit_b}}
+\caption[Technique de modulation du hacheur pour réduire le décalage de l'IA et le bruit]{\small Technique de modulation du hacheur pour réduire le décalage de l'IA et le bruit $1/f$ \citep{Xu_2018}.}
+\label{fig:Technique_de_modulation_du_hacheur_pour_reduire_le_decalage_de_IA_et_le_bruit}
+\hypertarget{fig:Technique_de_modulation_du_hacheur_pour_reduire_le_decalage_de_IA_et_le_bruit}{}
+\end{figure}
+Le bruit $1/f$, ou bruit de scintillement, est généralement la source de bruit de tension dominante d'un bioamplificateur, car la bande passante du bruit $1/f$ est généralement de l'ordre de quelques $kHz$, ce qui est bien au-delà de la bande passante du signal EEG de 100Hz. Le bruit $1/f$ peut être réduit en augmentant la taille des transistors d'entrée. Cependant, l'utilisation de transistors d'entrée extrêmement grands non seulement augmente la surface de la puce, mais induit également une capacité parasite importante, ce qui pose des problèmes de réduction de l'impédance d'entrée et du \ac{CMRR} \citep{Xu_2018}. La modulation par découpage \citep{Enz_1996} est une technique largement utilisée pour réduire le bruit et le décalage à basse fréquence d'un IA sans perturber le fonctionnement en temps continu. De plus, en échangeant périodiquement ses entrées, le hachage augmente le CMRR d'une IA en faisant la moyenne de son décalage de gain. Le principe de fonctionnement de la modulation du hacheur est montré sur la figure \ref{fig:Technique_de_modulation_du_hacheur_pour_reduire_le_decalage_de_IA_et_le_bruit}, où un signal d'entrée basse fréquence est modulé à la hausse à une fréquence de découpage $(f_c)$ par un modulateur à onde carrée, puis ce signal est amplifié par un IA et démodulé à la bande de bases d'origine par une autre onde carrée modulatrice. D'un autre côté, le décalage intrinsèque et le bruit $1/f$ (en dessous de la fréquence de découpage) de l'IA sont modulés à la hausse de $f_c$ par le deuxième modulateur d'onde carrer \citep{Xu_2018}. Ces signaux résiduels à $f_c$, connus sous le nom d'ondulation, peuvent être filtrés par un \ac{LPF} ou autrement supprimés par une boucle de réduction d'ondulation \citep{Wu_2009}.
+\subsection{L'impédance bootstrapping}
+Les \ac{AE} nécessitent une impédance d'entrée élevée pour minimiser la répartition de la tension via l'impédance de l'électrode cutanée, notamment dans le cas d'une interface électrode sèche. L'amorçage d'impédance a été utilisé pour améliorer l'impédance d'entrée d'un IA de diverses manières, où une rétroaction positive appropriée est souvent l'élément fondamental. Dans les travaux de \citet{Chi_2011, Harland_2002}, la sortie de l'IA est réinjectée pour amorcer sa résistance de polarisation du fil d'entrée (Figure \ref{fig:Techniques_d_amplification_impedance_a}), conduisant à une impédance d'entrée très élevée adaptée à la détection EEG sans contact \citep{Xu_2018}.
+Dans le travail de \citet{Fan_2011}, le courant de polarisation d'entrée de l'IA est partiellement fourni par une boucle de rétroaction positive (Figure \ref{fig:Techniques_d_amplification_impedance_b}), augmentant efficacement l'impédance d'entrée de l'IA. Dans les deux cas, l'impédance d'entrée peut être amorcée pour être infiniment grande. Néanmoins, la quantité de rétroaction positive, en courant ou en tension, doit être soigneusement contrôlée pour maintenir la boucle de stabilité \citep{Xu_2018}.
+\begin{figure}[!htbp]
+\centering
+\subfloat[Baser sur la rétroaction de tension]
+{\includegraphics[width=.4\textwidth, height=.1\textheight]{part1/Images/d_a.PNG}\label{fig:Techniques_d_amplification_impedance_a}}\hfill
+\subfloat[Baser sur la rétroaction de courant]
+{\includegraphics[width=.4\textwidth, height=.12\textheight]{part1/Images/d_b.PNG}\label{fig:Techniques_d_amplification_impedance_b}}
+\caption[Techniques d'amplification d'impédance]{Techniques d'amplification d'impédance baser sur la rétroaction de tension \textbf{(a)} ou de courant \textbf{(b)} \citep{Xu_2018}.}
+\label{fig:Techniques_d_amplification_impedance}\hypertarget{fig:Techniques_d_amplification_impedance}{}
+\end{figure}
+\subsection{La driven-right-leg (DRL)}
+Il existe deux mécanismes qui limitent la CMRR pratique d'un système d'acquisition EEG: L'inadéquation de l'\ac{ETI} et l'inadéquation du gain des AE. Le premier peut être atténué en maximisant l'impédance d'entrée de ce dernier peut-être réduit par hachage. Malheureusement, le découpage entre deux AE n'est pas pratique pour un système basé sur AE, où les AE sont montés sur des électrodes séparées et placées loin l'un de l'autre. Ainsi, la non-concordance des composants des AE se traduit généralement par une faible CMRR $(<60 dB)$ \citep{Xu_2018}. Le circuit le plus connu pour améliorer la CMRR est le circuit à \ac{DRL} de la figure \ref{fig:Driven_right_legpou_alpha_amelioration_de_la_CMRR}, où le signal d'entrée en \ac{CM} est suivi et renvoyé au sujet via une troisième électrode, c'est-à-dire l'électrode de polarisation. Étant donné que l'impédance électrode-tissu ($Z_e$ et $Z_{rl}$) se trouve également dans la boucle de rétroaction, la technique DRL améliore le CMRR en réduisant l'impédance de mode commun à l'IA, ce qui entraîne une réduction des interférences CM du corps humain. Cependant, de grands condensateurs externes (de quelques $\eta F$) et des résistances de limitation de courant (de quelque $100 k\Omega$) sont nécessaires pour stabiliser la boucle \citep{Xu_2018}. Lorsque des électrodes sèches sont utilisées, il devient difficile d'assurer la stabilité de la boucle sur une large plage d'impédance (de $100 k\Omega$ à $10 M\Omega$), lorsque le décalage d'électrode et l'inadéquation d'impédance d'électrode existent \citep{Xu_2018}.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.2\textheight, width=.7\textwidth]
+{part1/Images/j.PNG}
+\caption[Circuit à Driven-Right-Leg (DRL) pour l'amélioration de la CMRR]{Circuit à Driven-Right-Leg (DRL) pour l'amélioration de la CMRR \citep{Xu_2018}.}
+\label{fig:Driven_right_legpou_alpha_amelioration_de_la_CMRR}
+\hypertarget{fig:Driven_right_legpou_alpha_amelioration_de_la_CMRR}{}
+\end{figure}
+\subsection{Le back-end dans la common-mode feedback (CMFB)}
+L'inadéquation entre les AE domine généralement leur CMRR. Cela peut être amélioré par un circuit \ac{CMFB} dorsal. La figure \ref{fig:Circuits_equivalents_du_systeme_AE} montre le circuit équivalent d'un système à deux AE simplifié et son circuit CMFB. Sans le CMFB, les entrées de référence des AE sont connectées à la masse \citep{Xu_2018}. Par conséquent, le gain CM est déterminé par l'inadéquation du gain des AE $(\Delta A_V)$, conduisant à une faible CMRR comme indiqué en Éq. (\ref{eq:CMRR_left_20_log_Delta_A_V}).
+\begin{flalign}
+\begin{split}
+\operatorname{CMRR}=20\times \log\left( \frac{A_V}{\Delta A_V}\right)
+\end{split},
+\label{eq:CMRR_left_20_log_Delta_A_V}
+\hypertarget{eq:CMRR_left_20_log_Delta_A_V}{}
+\end{flalign}
+avec le CMFB, cependant, les entrées de référence des AE sont connectées à la sortie du CMFB, qui est approximativement égale à l'entrée CM de tous les AE. Grâce au CMFB, il réduit le gain CM, les sorties CM résiduelles $\chi_{\operatorname{out1}}$ et $\chi_{\operatorname{out2}}$, ainsi que la sortie différentielle $(\chi_{\operatorname{out}})$. Le nouveau CMRR en utilisant le CMFB est dérivé en Éq. (\ref{eq:CMRR_CMRR_20_log_left_2_A_chi_frac_right_CMFB_chi_right}), où le CMRR est amélioré par un facteur de $20\times \log (A_V)$. Dans l'Éq. (\ref{eq:CMRR_CMRR_20_log_left_2_A_chi_frac_right_CMFB_chi_right}), où $A_V$ est le gain de tension en boucle fermée de l'AE, et $A_{V, \operatorname{CMFB}}$ est le gain CM de l'amplificateur sommateur capacitif \citep{Xu_2018}.
+\begin{flalign}
+\begin{split}
+\operatorname{CMRR}'&=20\times \operatorname{CMRR}\times \log\left(\frac{2\times A_V}{2+\frac{1}{A_{V,\operatorname{CMFB}}}}+1\right)\\
+&\approx 20\times \operatorname{CMRR}\times\log(A_V).
+\end{split}
+\label{eq:CMRR_CMRR_20_log_left_2_A_chi_frac_right_CMFB_chi_right}
+\hypertarget{eq:CMRR_CMRR_20_log_left_2_A_chi_frac_right_CMFB_chi_right}{}
+\end{flalign}
+\indent Le circuit back-end CMFB (Figure \ref{fig:Schema_fonctionnel_du_circuit_back_end_CMFB}) se compose d'un amplificateur sommateur capacitif avec un gain $A_{V, \operatorname{CMFB}} = \left(8 \times C_5 / C_6\right)$ et de huit filtres passe-bas à gain unitaire pour rejeter les interférences haute fréquence. Les condensateurs de couplage $(C_5)$ bloquent les décalages de sorties résiduelles des AE, évitant ainsi de sommer la saturation de l'amplificateur. Via une pseudo-résistance $R_6$, l'amplificateur sommateur fournit une tension de polarisation à $(\chi_{\operatorname{ref}})$ de tous les AE. Dans un circuit d'acquisition EEG à huit électrodes, deux AE peuvent être utilisés pour former un canal d'acquisition EEG bipolaire. L'amplificateur sommateur ne renvoie que la tension CM moyenne des huit AE à leurs entrées de référence tout en rejetant les signaux en mode différentiel (DM). Par conséquent, le circuit CMFB dorsal ne perturbe pas l'amplification EEG différentielle \citep{Xu_2018}.
+\begin{figure}[!htbp]
+\centering
+\subfloat[Sans back-end]
+{\includegraphics[height=.16\textheight, width=.44\textwidth]{part1/Images/k.PNG}\label{fig:Circuits_equivalents_du_systeme_AE_a}}\hfill
+\subfloat[Avec back-end]
+{\includegraphics[height=.16\textheight, width=.44\textwidth]{part1/Images/l.PNG}\label{fig:Circuits_equivalents_du_systeme_AE_b}}
+\caption[Circuits équivalents du système AE]{Circuits équivalents du système AE: (a) sans CMFB et (b) avec CMFB \citep{Xu_2018}.}
+\label{fig:Circuits_equivalents_du_systeme_AE}
+\hypertarget{fig:Circuits_equivalents_du_systeme_AE}{}
+\end{figure}
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.20\textheight, width=.7\textwidth]{part1/Images/m.PNG}
+\caption[Schéma fonctionnel du circuit back-end CMFB]{Schéma fonctionnel du circuit back-end CMFB \citep{Xu_2018}.}
+\label{fig:Schema_fonctionnel_du_circuit_back_end_CMFB}
+\hypertarget{fig:Schema_fonctionnel_du_circuit_back_end_CMFB}{}
+\end{figure}
+L'amélioration pratique du CMRR est limitée par les contraintes de stabilité de la boucle CMFB. Pour équilibrer le compromis entre le CMRR et la stabilité de la boucle, les gains de tension des AE et de l'amplificateur sommateur sont réglés sur 100 et 16, respectivement. Dans la pratique, l'inadéquation de l'impédance des électrodes est un autre mécanisme qui réduit encore le CMRR d'une paire d'AE, en particulier lorsque des électrodes sèches sont utilisées. Dans le cas où le CMFB n'est pas utilisé (Figure \ref{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose}), le CMRR d'une paire AE est dérivé en Éq. (\ref{eq:CMRR_20_log_frac_left_Delta_A_chi_right_R_d_R_i}), où $\Delta R_d$ est la non-correspondance d'impédance d'électrode et $\Delta A_V$ représente la non-correspondance des composants AE \citep{Xu_2018}.
+\begin{figure}[!htbp]
+\centering
+\subfloat[Non de compensation CMRR architecture]
+{\includegraphics[height=.12\textheight, width=.6\textwidth]{part1/Images/n.PNG}\label{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose_a}}\\
+\subfloat[DRL architecture]
+{\includegraphics[height=.12\textheight, width=.6\textwidth]{part1/Images/o.PNG}\label{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose_b}}\\
+\subfloat[Back-CMFB architecture]
+{\includegraphics[height=.12\textheight, width=.6\textwidth]{part1/Images/p.PNG}\label{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose_c}}
+\caption[Schémas fonctionnels du DRL et du CMFB proposé]{Schémas fonctionnels du DRL et du CMFB proposé \citep{Xu_2018}.}
+\label{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose}
+\hypertarget{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose}{}
+\end{figure}
+\begin{flalign}
+\begin{split}
+\operatorname{CMRR}=20\times \log\left(\frac{A_V}{\Delta A_V+\frac{A_V\Delta R_d}{R_d+R_i}}\right)
+\end{split}.
+\label{eq:CMRR_20_log_frac_left_Delta_A_chi_right_R_d_R_i}
+\hypertarget{eq:CMRR_20_log_frac_left_Delta_A_chi_right_R_d_R_i}{}
+\end{flalign}
+\indent Comparé au circuit bien connu du DRL \citep{Winter_1983}, qui renvoie le signal CM au sujet (Figure \ref{fig:Schemas_fonctionnels_du_DRL_et_du_CMFB_propose}) via une électrode de polarisation, le circuit CMFB proposé renvoie le signal CM aux AE contributions. Par conséquent, le circuit CMFB ne compense que la non-concordance des composants des AE. Même si la non-concordance est parfaitement minimisée, la CMRR maximale que le circuit CMFB peut aider à atteindre sera finalement limitée par la non-concordance d'impédance des électrodes, comme indiqué en Éq. (\ref{eq:CMRR_CMFB_MAX_left_log_20_R_d_R_i_Delta_R_d_right}), tandis que la CMRR maximale avec un circuit DRL est théoriquement infinie \citep{Xu_2018}.
+\begin{flalign}
+\begin{split}
+\operatorname{CMRR}_{\operatorname{CMFB},\operatorname{MAX}}=20\times\log\left(\frac{R_d+R_i}{\Delta R_d}\right)
+\end{split}.
+\label{eq:CMRR_CMFB_MAX_left_log_20_R_d_R_i_Delta_R_d_right}
+\hypertarget{eq:CMRR_CMFB_MAX_left_log_20_R_d_R_i_Delta_R_d_right}{}
+\end{flalign}
+Cependant, en raison de la variabilité de l'impédance de l'électrode $R_{d, DSL}$ $(10 k\Omega-10 M\Omega)$ et la capacité parasite, le circuit DRL doit être soigneusement conçu pour assurer qu'il est toujours stable \citep{Degen_2004}, ce qui nécessite un grand condensateur de compensation $C_f$ (quelques dizaines de $\eta F$) pour la stabilité \citep{Jochum_2009}. Les électrodes sèches peuvent encore aggraver l'instabilité, car l'impédance des électrodes est encore plus variable. En revanche, ce n'est pas un problème pour le circuit CMFB proposé, car l'impédance de l'électrode est hors de la boucle de rétroaction, et une troisième électrode $(E_6)$ polarise toujours le sujet à la masse du circuit \citep{Xu_2018}.
+\subsection{Les amplificateurs d'instrumentation}
+En tant que frontal analogique du système EEG, un AE doit fournir une impédance d'entrée élevée et un faible bruit, ainsi que la capacité de rejeter les grands décalages d'électrode. Pour répondre à ces exigences, l'AE (Figure \ref{fig:Schema_fonctionnel_de_IA_utilise_comme_AE}) se compose d'un hacheur non-inverseur IA équipée d'une \ac{DSL} et d'une \ac{RRL}. Leurs principes de fonctionnement et leurs compromis de conception sont discutés en détail dans les sections suivantes. Pour l'impédance d'entrée, une IA non-inverseuse a une impédance d'entrée beaucoup plus élevée que celle d'une IA inverseuse \citep{Xu_2011}, car l'impédance d'entrée de l'ancienne architecture est déterminée par la capacité parasite d'entrée, au lieu du grand condensateur de couplage $(C_1)$. Dans cette conception (Figure \ref{fig:Schema_fonctionnel_de_IA_utilise_comme_AE}), l'IA a une impédance d'entrée de $2G\Omega$ à 20Hz, tandis que la résistance de sortie $(R_{\operatorname{out}, \operatorname{IDC}})$ de la source de courant, ETI est de $3.2G\Omega$ à 20Hz. Cela donne à l'AE une impédance d'entrée équivalente de plus de $1.2G\Omega$ à 20Hz.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight, width=.7\textwidth]{part1/Images/i.PNG}
+\caption[Schéma fonctionnel de l'IA utilisé comme AE]{Schéma fonctionnel de l'IA utilisé comme AE \citep{Xu_2018}.}
+\label{fig:Schema_fonctionnel_de_IA_utilise_comme_AE}
+\hypertarget{fig:Schema_fonctionnel_de_IA_utilise_comme_AE}{}
+\end{figure}
+\begin{flalign}
+\begin{split}
+Z_{\operatorname{in}}=\left(\frac{1}{2f_c C_p}+\frac{1}{s C_1}\right)//R_{\operatorname{out},\operatorname{IS}}
+\end{split}.
+\label{eq:Z_in_frac_1_2f_c_C_frac_1_sC_right_left}
+\hypertarget{eq:Z_in_frac_1_2f_c_C_frac_1_sC_right_left}{}
+\end{flalign}
+\indent Pour rejeter un grand \ac{DEO}, qui pourrait autrement saturer l'AE, l'IA intégrée implémente un DSL à temps continu (Figure \ref{fig:Schema_fonctionnel_de_IA_utilise_comme_AE}). Le DSL stabilise la tension continue de sortie à une tension de référence $(\chi_{\operatorname{ref}})$ via un intégrateur RC actif, qui renvoie le décalage de sortie de l'IA à son entrée inverseuse via une grande pseudo-résistance $(R_s)$. La réjection de décalage d'électrode maximale de chaque AE est de 250mV par rapport à la polarisation du sujet. Ceci est finalement déterminé par la plage de polarisation d'entrée de l'amplificateur de base. Le décalage intrinsèque de l'amplificateur de base sera modulé à la hausse par le hacheur de sortie \citep{Xu_2018}. Cela génère une onde carrée, à savoir une ondulation, réduisant ainsi la marge de sortie de l'IA. Un RRL \citep{Wu_2009} convertit d'abord l'ondulation de sortie en un courant continu via un condensateur $(C_s)$ et un tampon de \ac{CB}. Ce courant continu est puis intégré sur un condensateur $(C_{\operatorname{int}})$, et la tension résultante est convertie en un courant continu via un étage transconducteur (GM2). Ce courant CC compense le décalage intrinsèque de l'IA et réduit l'ondulation de sortie d'environ d'un facteur de 10 fois \citep{Xu_2018}.
+\subsection{Analyse du bruit}
+Dans ce travail, la spécification de bruit en entrée d'un canal EEG (comprenant deux AE et un \ac{BE}) est de $75 \eta V /\sqrt{\operatorname{Hz}}$. En négligeant la contribution au bruit du BE, le bruit en entrée d'un seul AE devrait être d'environ $53 \eta V / \sqrt{\operatorname{Hz}}$, ce qui comprend trois contributeurs majeurs (Figure \ref{fig:Modele_de_bruit_equivalent_de_AE}): L'amplificateur de base, le RRL et le DSL \citep{Xu_2018}.
+\begin{flalign}
+\begin{split}
+\overline{V}^2_{\operatorname{in},\operatorname{AE}}=\overline{V}^2_{\operatorname{in},\operatorname{IA}}+\overline{V}^2_{\operatorname{in},\operatorname{RRL}}+\overline{V}^2_{\operatorname{in},\operatorname{DSL}}
+\end{split}.
+\label{eq:chi_2_in_AE_V}
+\hypertarget{eq:chi_2_in_AE_V}{}
+\end{flalign}
+La contribution au bruit du c{\oe}ur IA peut être exprimée par:
+\begin{flalign}
+\begin{split}
+\overline{V}^2_{\operatorname{in},\operatorname{IA}}=\overline{V}^2_{\operatorname{in},\operatorname{OP1}}\times\left[1+\frac{C_2}{C_1}+\left(\frac{f_c}{f_{\operatorname{in}}}+1\right).\frac{C_p}{C_1}\right]+\overline{I}^2_{\operatorname{in},\operatorname{OP1}}\times\left(\frac{1}{2\pi f_{\operatorname{in}}C_2}\right)^2
+\end{split},
+\label{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}
+\hypertarget{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}{}
+\end{flalign}
+où $\chi_{\operatorname{in}, \operatorname{OP1}}$ et $I_{\operatorname{in}, \operatorname{OP1}}$ sont le bruit de tension et le bruit de courant référencé en entrée de l'amplificateur central, respectivement, $C_1$ et $C_2$ sont les condensateurs de rétroaction qui définissent le gain de l'AE, $f_c$ est la fréquence de découpage, $f_{\operatorname{in}}$ est la fréquence du signal d'entrée, et $C_p$ est la capacité parasite d'entrée \citep{Xu_2018}.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight, width=.7\textwidth]{part1/Images/h.PNG}
+\caption[Modèle de bruit équivalent de l'AE]{Modèle de bruit équivalent de l'AE \citep{Xu_2018}.}
+\label{fig:Modele_de_bruit_equivalent_de_AE}
+\hypertarget{fig:Modele_de_bruit_equivalent_de_AE}{}
+\end{figure}
+Le premier terme de l'Éq (\ref{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}) fait référence au bruit de tension $1 / f^2$ du hacheur non-inverseur IA en raison de sa résistance parasite à capacité commutée. Bien que la modulation du hacheur atténue le bruit $1 / f$ de l'amplificateur central (OP1), cette résistance parasite réduit l'impédance d'entrée de l'amplificateur et augmente ainsi son bruit actuel. Le bruit de courant est converti en bruit de tension $1 / f^2$ en présence de rétroaction capacitive externe \citep{Xu_2018}. Le deuxième terme de l'Éq. (\ref{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}) fais référence à une autre source de bruit de tension $1 / f^2$ associée au bruit de courant $I_{\operatorname{in}, \operatorname{OP1}}$, qui est due à l'injection de charge et à la traversée d'horloge du hacheur d'entrée \citep{Xu_2013}. Le bruit de courant PSD augmente linéairement avec la fréquence de découpage \citep{Drung_2011} et induit un bruit de tension $1 / f^2$ significatif, en particulier lorsque le découpage est effectué à un n{\oe}ud à haute impédance \citep{Xu_2018}.\\
+\indent L'IA proposée utilise plusieurs méthodes pour minimiser le bruit total dans l'Éq. (\ref{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}). Premièrement, pour réduire le bruit thermique de $\chi_{\operatorname{in}, \operatorname{OP1}}$, l'amplificateur central utilise un amplificateur à deux étages (Figure \ref{fig:Schema_de_amplificateur_central_un_AE}), dont la paire d'entrées se compose de paires différentielles ; N-type Metal Oxide Semiconductor (NMOS) et P-type Metal Oxide Semiconductor (PMOS) sont connectés en série \citep{Zou_2010}. Cette méthode double la transconductance d'entrée de l'amplificateur de base sans consommer le courant de polarisation supplémentaire tout en atteignant une bonne plage de CM d'entrée de $0.7$ à $1.2 V$. Deuxièmement, afin de réduire $I_{in, OP1}$, le modulateur de hacheur d'entrée utilise une faible fréquence de hachage $(f_c = 2 kHz)$ et transistors de petite taille \citep{Xu_2013}. Troisièmement, l'utilisation d'une topologie non-inverseuse signifie que son impédance d'entrée n'est pas dominée par les condensateurs de rétroaction. Ainsi, de très grands condensateurs $C_1 (5 \eta F)$ et $C_2 (50$ à $500 pF)$ sont utilisés pour réduire l'impédance du n{\oe}ud de découpage, comme indiqué dans l'Éq. (\ref{eq:bar8_chi_2_in_IA_ba_alpha_vop1_left_frac_C_1}). Cette topologie réduit le bruit de tension $1 / f^2$ sans compromettre l'impédance d'entrée d'IA, c'est un avantage évident d'un hacheur non-inverseur AE, comme l'IA inverseur souffre du compromis entre le bruit et l'impédance d'entrée.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.3\textheight, width=.7\textwidth]{part1/Images/g.PNG}
+\caption[Schéma de l'amplificateur central d'un AE]{Schéma de l'amplificateur central d'un AE \citep{Xu_2018}.}
+\label{fig:Schema_de_amplificateur_central_un_AE}
+\hypertarget{fig:Schema_de_amplificateur_central_un_AE}{}
+\end{figure}
+\section{Aperçu d'ensemble d'architecture IC}
+Le système \ac{DAE} (Figure \ref{fig:Systeme_electrode_active_numerique_DAE_portable_pour_la_mesure}) se compose de plusieurs puces DAE et d'un microcontrôleur principal. Chaque puce DAE (Figure \ref{fig:Architecture_une_puce_numerique_electrodeeactive_DAE}) peut mesurer simultanément des signaux biopotentiels (dans le canal ExG), des signaux ETI réels et imaginaires (dans les canaux IMP et IMQ) et des signaux biopotentiels DC et extrêmement basse fréquence (dans le canal DC). La chaîne des signaux commence par un hacheur IA configuré pour un gain de tension de 70, ce qui améliore le compromis bruit / puissance des \ac{PGA} suivants. L'IA contient une boucle de réduction d'ondulation (RRL) \citep{Wu_2009} et une boucle d'asservissement CC (DSL) \citep{Verma_2010} pour atténuer l'ondulation du hacheur et le décalage de l'électrode de rejet, respectivement. La sortie de l'IA est divisée en deux canaux pour une démodulation séparée des signaux ETI et ExG \citep{Xu_2018}.\\
+\indent Le canal ETI est mis en {\oe}uvre de la même manière que dans l'AE. Chaque canal ETI se compose de deux PGA hacheurs qui démodulent les signaux ETI avec des horloges en phase $f_I(0^\circ)$ et en phase quadrature $f_I(90^\circ)$, par rapport à un courant carré injecté dans l'électrode. Les sorties DC de IMP et IMQ représentent alors respectivement les composantes réelle et imaginaire de l'ETI. Par rapport à l'implémentation précédente, le nouveau PGA du canal ExG comprend un filtre coupe-bande pour rejeter les signaux ETI à $f_I(0^\circ)$. Cela empêche la saturation du PGA, résultant des (gros) signaux ETI qui peuvent se produire lorsque des électrodes sèches sont utilisées \citep{Xu_2018}. Le canal DC acquiert les signaux DC et extrêmement basse fréquence présents à la sortie du DSL. Dans le domaine fréquentiel, le gain et la phase normalisés du canal DC complètent ceux du canal ExG, permettant de reconstruire des signaux ExG couplés DC en combinant les sorties des canaux ExG et DC \citep{Muller_2012, Schoenle_2013}.\\
+\begin{figure}[!htbp]
+\centering
+\subfloat[Interconnexion entre les électrode et système Back-End]
+{\includegraphics[height=.3\textheight,width=.7\textwidth]
+{part1/Images/q.PNG}\label{fig:Systeme_electrode_active_numerique_DAE_portable_pour_la_mesure_a}}\\
+\subfloat[Exemple de multi acquisition en utilisant du système DAE]
+{\includegraphics[height=.35\textheight,width=.85\textwidth]
+{part1/Images/e.PNG}\label{fig:Systeme_electrode_active_numerique_DAE_portable_pour_la_mesure_b}}
+\caption[Système d'électrode active numérique (DAE) portable pour la mesure multiparamétrique]{Système d'électrode active numérique (DAE) portable pour la mesure multiparamétrique \citep{Xu_2018}.}
+\label{fig:Systeme_electrode_active_numerique_DAE_portable_pour_la_mesure}
+\hypertarget{fig:Systeme_electrode_active_numerique_DAE_portable_pour_la_mesure}{}
+\end{figure}
+\begin{figure}[!htbp]
+\centering
+\subfloat[Exemple d'un système d'acquisition multicanal]
+{\includegraphics[width=.9\textwidth]
+{part1/Images/r.PNG}\label{fig:Architecture_une_puce_numerique_electrodeeactive_DAE_a}}\\
+\subfloat[Puce électronique d'une électrode active DAE]
+{\includegraphics[width=.9\textwidth]
+{part1/Images/f.PNG}\label{fig:Architecture_une_puce_numerique_electrodeeactive_DAE_b}}
+\caption[Architecture d'une puce numérique d'électrode active (DAE)]{Architecture d'une puce numérique d'électrode active (DAE) \citep{Xu_2018}.}
+\label{fig:Architecture_une_puce_numerique_electrodeeactive_DAE}
+\hypertarget{fig:Architecture_une_puce_numerique_electrodeeactive_DAE}{}
+\end{figure}
+\indent Ces quatre canaux de mesure sont échantillonnés simultanément par $f_{SH}$ et connectés à un multiplicateur analogique 8 à 1, à travers lequel un microcontrôleur principal $(\mu C)$ sélectionne les canaux d'intérêt. Un Controller Area Network (CAN)-SAR 12-bits \citep{Yazicioglu_2011} numérise les sorties de ces canaux sélectionnés à 250 S/s à 2 kS/s, et les sorties numériques sont transmises au back-end $\mu C$ via une interface $I^2C$.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[height=.24\textheight,width=.8\textwidth]
+{part1/Images/v.PNG}
+\caption[PGA avec filtre coupe-bande pour la réjection du signal ETI]{PGA avec filtre coupe-bande pour la réjection du signal ETI \citep{Xu_2018}.}
+\label{fig:PGA_avec_filtre_coupe_bande_pour_la_rejection_du_signal_ETI}
+\hypertarget{fig:PGA_avec_filtre_coupe_bande_pour_la_rejection_du_signal_ETI}{}
+\end{figure}
+Dans le canal ExG, le PGA (Figure \ref{fig:PGA_avec_filtre_coupe_bande_pour_la_rejection_du_signal_ETI}) fournit un gain programmable qui facilite les applications EEG et ECG. La modulation du hacheur est utilisée pour atténuer le bruit $1/f$ basse fréquence. Un filtre coupe-bande atténue le signal ETI avant qu'il ne soit filtré par le LPF suivant. Le principe de fonctionnement est similaire au RRL. Tout signal ETI en phase à la sortie du PGA est d'abord converti en courant alternatif via $C_s$, qui est ensuite démodulé en DC et intégré sur le condensateur $C_{\operatorname{int}}$. Le transconducteur GM4 convertit à la hausse la tension continue en courant alternatif et la renvoie au PGA (Figure \ref{fig:Core_PGA_avec_une_charge_de_resistance_programmable}). Ce courant de retour compense le courant ETI traversant $R_i$. D'un autre côté, le signal ExG à la sortie du PGA est modulé à la hausse pour $1 kHz$ et est donc supprimé par $C_{\operatorname{int}}$. Le PGA peut atténuer le signal ETI de sortie en:
+\begin{flalign}
+\begin{split}
+A_{V,\operatorname{PGA}}=\frac{Z_s G_{\operatorname{PGA}}}{R_{\operatorname{out},\operatorname{CB}}\times g_{\operatorname{m4}}\times R_{o,\operatorname{PGA}}+Z_s}\approx \frac{Z_s}{R_{\operatorname{out},\operatorname{CB}}\times g_{\operatorname{m4}}\times R_{i,\operatorname{PGA}}}
+\end{split},
+\label{eq:A_chi_PGA_G}
+\hypertarget{eq:A_chi_PGA_G}{}
+\end{flalign}
+où $Z_s=C_s//R_{\operatorname{in},\operatorname{CB}}$, $R_{\operatorname{in},\operatorname{CB}}$ et $R_{\operatorname{out},\operatorname{CB}}$ sont la résistance CC d'entrée et de sortie du tampon de courant (CB), respectivement. $R_{i, \operatorname{PGA}}$ et $R_{o, \operatorname{PGA}}$ sont les résistances de rétroaction internes du PGA.\\
+\begin{center}
+\centering
+\end{center}
+\begin{figure}[!htbp]
+\centering
+\subfloat[Architecture interne d'un PGA]
+{\includegraphics[height=.25\textheight,width=.7\textwidth]
+{part1/Images/w.PNG}\label{fig:Core_PGA_avec_une_charge_de_resistance_programmable_a}}\\
+\subfloat[Charge de résistance programmable]
+{\includegraphics[height=.15\textheight,width=.7\textwidth]
+{part1/Images/x.PNG}\label{fig:Core_PGA_avec_une_charge_de_resistance_programmable_b}}
+\caption[Core PGA avec une charge de résistance programmable]{Core PGA avec une charge de résistance programmable \citep{Xu_2018}.}
+\label{fig:Core_PGA_avec_une_charge_de_resistance_programmable}
+\hypertarget{fig:Core_PGA_avec_une_charge_de_resistance_programmable}{}
+\end{figure}
+\indent Pour maximiser l'atténuation, le PGA utilise un tampon de courant cascode et une grande résistance d'entrée $(R_{i, \operatorname{PGA}} = 1 M\Omega)$. Le noyau PGA utilise la même architecture IA, mais avec une sortie asymétrique. Le gain grossier (2, 10 et 20) est sélectionné via $R_{o, \operatorname{PGA}}$, tandis que $R_{\operatorname{DAC}}$ est implémenté avec un réseau de résistances programmables $12$-bits et peut être ajusté avec une résolution de $50 \Omega$. Pour atteindre cet objectif, de très gros commutateurs \ac{CMOS} $(W / L = 500 / 0.18)$ sont utilisés. Le $R_{\operatorname{DAC}}$ peut être utilisé pour réduire le gain de canal de deux DAE et peut ainsi améliorer le CMRR aux sorties analogiques d'environ $5 dB$. Cependant, l'amélioration du CMRR aux sorties numériques est masquée par la quantification du CAN de 12-bits \citep{Xu_2014}. Au lieu de rogner, on peut également améliorer le CMRR de deux DAE en utilisant la technique à action directe en mode commun (CMFF) \citep{Xu_2018}. Les canaux IMP et IMQ incluent également des PGA pour une large gamme de mesures ETI. Le PGA n'a pas de filtre coupe-bande et contient uniquement un hacheur de sortie pour la démodulation ETI, car un signal ExG généralement à une amplitude inférieure à un signal d'entrée ETI \citep{Xu_2018}.
+\section{Exemples d'ensemble de données EEG les plus courants}
+\label{section:exemp_data_offline}
+Cette section présente les données ont été utilisées pour optimiser les différentes étape du système de prédiction des signaux EEG dans la partie \ref{part2}:
+\subsection{L'ensemble de données UCI pour l'état oculaire}
+\label{subsection:UCI_data}
+La base de données UCI \citep{Abenna_2020, Abenna_2021a, Abenna_2021b} est acquise à partir de l'enregistrement EEG des états oculaires (ouverts ou fermés) à l'aide de 14 électrodes non invasives (AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8 et AF4) positionnées comme indiqué la figure \ref{fig:aj2232_a}, afin que les électrodes soient placées à proximité des neurones qui relient les yeux au lobe occipital (Figure \ref{fig:system nerveau of electrodes_a}). L'ensemble des signaux acquis sont affectés par les mouvements oculaires, cette influence a été reconnue grâce aux algorithmes SVM, k-NN, RNN, CNN \ldots, etc., à partir d'un paquet des signaux EEG. Les signaux sont acquis à l'aide du dispositif Emotive EEG Neuroheadset. De ce fait, l'étiquette « 0 » indique que les yeux sont ouverts et l'étiquette « 1 » indique que les yeux sont fermés. La quantité totale de données dans le présent ensemble de données est de 14980 échantillons.
+\begin{figure}[!htbp]
+\centering
+\subfloat[Système nerveux de la main gauche]
+{\includegraphics[width=.48\textwidth, height=.3\textheight]{part1/Images/Sensory_Neuron.jpg}\label{fig:system nerveau of electrodes_a}}\hfill 
+\subfloat[\centering Système nerveux des yeux]
+{\includegraphics[width=.48\textwidth, height=.3\textheight]
+{part1/Images/l_2.PNG}\label{fig:system nerveau of electrodes_b}}
+\caption[Exemples de quelques systèmes nerveux connectant le cerveau avec certains organes]{\centering Exemples de quelques systèmes nerveux connectant le cerveau avec certains organes \citep{Lim_2017, Ping_2022}.}
+\label{fig:system nerveau of electrodes}
+\end{figure}
+\begin{figure}[!htbp]
+\centering
+\subfloat[\centering UCI]
+{\includegraphics[width=.4\textwidth]%, height=.3\textheight]
+{part1/Images/1_2.PNG}\label{fig:aj2232_a}}\hfill
+\subfloat[\centering ProjectBCI]
+{\includegraphics[width=.4\textwidth]{part1/Images/c_2.PNG}\label{fig:aj2232_b}}\\
+\subfloat[\centering BCI Competition IV 2a]
+{\includegraphics[width=.4\textwidth]
+{part1/Images/8_2.PNG}\label{fig:aj2232_c}}\\
+\subfloat[\centering PhysioNet EEG-MI]
+{\includegraphics[width=.4\textwidth]
+{part1/Images/8_1.PNG}\label{fig:aj2232_d}}\hfill
+\subfloat[\centering KDD]
+{\includegraphics[width=.4\textwidth]
+{part1/Images/8_4.PNG}\label{fig:aj2232_e}}
+\caption[Localisations des électrodes pour chacune des données EEG]{\centering Localisations des électrodes pour chacune des populaires bases de données EEG.}
+\label{fig:aj2232}
+%\label{fig:postion of hands electrodes}
+%\label{fig:postion of electrodes}
+\hypertarget{fig:aj2232}{}
+\end{figure}
+\subsection{L'ensemble de données Project-BCI}
+\label{subsection:ProjectBCI_data}
+Le sujet acquis dans cette expérience est pour un patient de 21 ans, dont un état de santé inconnu. Ainsi, chaque tâche d'EEG consiste en un mouvement aléatoire des mains sachant que l'enregistrement a été effectué quand les yeux sont fermés\footnote{\url{https://sites.google.com/site/projectbci/}}. Les électrodes utilisées sont placées suivantes le système international 10-20 dans les positions suivantes: FP1, FP2, F3, F4, C4, C4, P3, P4, O2, F7, F7, T3, T4, T5, T6, FZ, CZ et PZ (Figure \ref{fig:aj2232_b}) \citep{Abenna_2022c, Abenna_2022d}. Les échantillons sont enregistrés avec une fréquence de 500Hz en utilisant l'appareil EEG-Neurofax avec 19 électrodes actives. Les données ont été exportées avec Eemagine-EEG à l'aide d'une référence commune selon laquelle la ligne AC fonctionne avec la fréquence du pays actuel de 50Hz.
+\subsection{L'ensemble de données de la compétition BCI-IV-2b}
+\label{subsection:BCI_IV_2b_data}
+Nous avons utilisé l'ensemble de données BCI Competition IV 2b\footnote{\url{http://www.bbci.de/competition/iv/results/index.html}}. Le but de cette compétition était de découvrir si un test était lié à l'imagerie motrice de la main gauche ("L") ou de la main droite ("R"). Les données de l'EEG ont été recueillies auprès de neuf sujets au moyen de trois électrodes bipolaires à un taux d'échantillonnage de 250 Hz \citep{Abenna_2021c, BCI_competition_IV, Monesi_2019}.
+\subsection{L'ensemble de données de la compétition BCI-IV-2a}
+\label{subsection:BCI_IV_2a_data}
+Nous avons également utilisé l'ensemble de données BCI compétition IV-2a, qui est ouvert au public. Cet ensemble de données comprend des signaux EEG provenant de 22 canaux d'enregistrements (Figure \ref{fig:aj2232_c}), ainsi que des fonctions IM effectuées avec des tâches mentales telles que le mouvement de la main droite ("R") et gauche ("L"), du pied ("F") et de la langue ("T"), des yeux ouverts ("O") et des yeux fermés ("C"). L'ensemble de données comprend 9 sujets sains, chacun ayant deux séances: Une séance d'entraînement et une séance de test. Chaque séance composée des essais de six tâches d'EEG comprend 288 échantillons. Les signaux EEG ont été échantillonnés avec une fréquence de 250Hz, avec une bande filtrante passant de 0.5 à 100Hz. Pour éliminer le bruit de la ligne, on utilise un filtre supplémentaire pour supprimer la fréquence de 50Hz. Lorsqu'il s'agit d'identifier l'IM, il est crucial de choisir un certain intervalle de temps pendant la période d'essai. Nous avons eu besoin de 2s de données entre 0.5s et 2.5s après le début de l'essai \citep{Ang_2012}. Pour plus d'informations sur l'enregistrement BCI compétition IV-2a voir \citet{Abenna_2021c, BCI_competition_IV}.
+\subsection{L'ensemble de données PhysioNet-MI}
+\label{subsection:PhysioNet_MI_data}
+L'ensemble de données PhysioNet-MI\footnote{\url{https://physionet.org/content/eegmmidb/1.0.0}} est enregistré par l'équipement BCI2000. Cette ensemble de données comprend des enregistrements des tâches d'IM \citep{Abenna_2021c, Abenna2022e}. Cet ensemble de données contient 109 différents sujets, chacun effectué en trois essais de deux minutes, de deux taches IM-différentes (poing gauche("L") vs droit ("R") ou les deux poings ("LR") vs les deux pieds ("F")). Ces données sont exposées sous la forme de l'ensemble de données brutes provenant de 64 canaux EEG comme illustre la figure \ref{fig:aj2232_d} avec une fréquence d'échantillonnage de 160 Hz. La quantité de données est particulièrement utile pour les modèles d'apprentissage profond. Le thème se détend devant l'écran de l'ordinateur, l'essai commence à $t = -2s $, la cible à $t = 0s $ indique le mouvement attendu de la position sur l'écran. Quand la cible mouve vers le côter gauche ou droit de l'écran, le sujet mouve d'un seul poing gauche ou droit. Dans une autre mouvement, la cible apparaît en haut ou en bas, indiquant le mouvement des poings ou des pieds. La cible restera à l'écran pour $4s$, lorsque la cible disparaît à $t = 4s$, le sujet se détend. Après $2s$, un nouvel essai commencera.
+\subsection{L'ensemble de données KDD}
+\label{subsection:KDD_data}
+L'ensemble de données KDD sert à l'étude du signal EEG acquis lors de tests sur des sujets ayant une prédisposition génétique à l'alcoolisme\footnote{\url{https://kdd.ics.uci.edu/databases/eeg/eeg.html}} \citep{Abenna_2022b}. Les sujets interrogés sur le déclin cognitif n'étaient pas en mesure de dormant de l'alcool, où tous les sujets étaient divisés en deux groupes: Le groupe témoin et l'alcool, pour le groupe alcool, se composaient de 77 alcooliques de sexe masculin avec un âge moyen de $35.83$, avec des âges allant de 22.3 à 49.8 ans. D'autre part, le groupe témoin se composait de 48 sujets qui n'avaient pas d'antécédents familiaux spécifiques de drogues ou d'alcoolisme ou des antécédents mentaux ou neurologiques \citep{Rodrigues_2019}. Selon le système international 10-20, il existe 61 canaux actifs non-invasifs du cuir chevelu pour l'acquisition des signaux (Figure \ref{fig:aj2232_e}), où chaque impédance d'électrode est toujours inférieure à 5$ k \Omega $. Le signal EEG est échantillonné à $256 Hz$\citep{Rodrigues_2019}. La stimulation a été effectuée dans trois conditions à l'aide des ensembles de données d'acquisition:
+\begin{itemize}
+\item Condition 1: Le stimulus par image (S1) a été appliqué une fois;
+\item Condition 2 (matching condition): Le stimulus 2 (S2) est répété comme S1;
+\item Condition 3 (Non-matching condition): S2 est suivi d'une autre image de S1 dans sa catégorie de signification.
+\end{itemize}
+\subsection{L'ensemble de données Sleep-EDF}
+\label{subsection:Sleep_EDF_data}
+PhysioNet a fourni les données EEG monocanal, acquérir à partir de 153 sujets, qui provenaient des bases de données Sleep-EDF\footnote{\url{https://www.physionet.org/content/sleep-edf/1.0.0}} \citep{Abenna_2022a}. Les signaux sont enregistrés à partir des électrodes EEG de FPz-Cz et Pz-Oz, l'électrooculographie (EOG), et le signal EMG. Les labels marqués manuellement sont inclus dans la base de données Sleep-EDF. Il existe deux groupes d'étude dans cet ensemble de données: Un groupe des cassettes de sommeil (SC: Sleep Cassette) composé par 153 sujets, ont été obtenus en 1989 auprès de volontaires ambulatoires sains pendant 24 heures de leur vie quotidienne normale; le groupe des télémétries de sommeil (ST: Sleep Telemetry) composé par 44 sujets, a été obtenu en 1994 chez des sujets qui avaient de légères difficultés à s'endormir, mais qui étaient par ailleurs en bonne santé, pendant une nuit à l'hôpital. Toutes les données EEG sont enregistrées avec une fréquence d'échantillonnage de 100Hz, puis chaque essai est étiquetées manuellement par les experts par les différents stages de sommeil, appelées 'W', '1', '2', '3/4' et 'R'.
+\section*{Conclusion}
+Ce chapitre illustre alors des méthodes d'enregistrement des signaux EEG utilisable basant sur le système international 10-20. Comme chaque zone du cerveau est responsable sur les tâches mentales de chaque organe. Donc, il est possible de décoder l'activité d'un organe acquis par un ensemble de canaux EEG, et que la qualité de la matière de l'électrode améliore la qualité des signaux acquis. L'utilisation des canaux de référence et de masse permet d'augmenter la présence de l'information propre pour chaque canal. Alors, de ces deux conditions, on peut élaborer des bons systèmes d'acquisition pour les signaux EEG (Système DAE). De ce point de vue, il y a de nombreux dispositifs d'acquisition existent permet d'enregistrer les signaux EEG de différentes tâches mentales, tel que NeuroHeadSet permet d'enregistrer les signaux EEG correspondant au système visuel, et que les dispositifs BCI2000 et NeuroFax sont capables d'enregistrer les activités cérébrales du cortex moteur et d'imagerie motrice. Chaque appareil a des caractéristiques internes qui la permettent d'acquis un type particulier de tâche EEG pour faire des analyses ou des prédictions. Dans le chapitre suivant, on va discuter l'étape de traitement des signaux à l'aide des algorithmes du filtrage fréquentiel et spatial, ainsi l'étape d'extraction de fonctionnalités à partir des signaux EEG dans le but d'augmenter la précision des systèmes prédictifs.
